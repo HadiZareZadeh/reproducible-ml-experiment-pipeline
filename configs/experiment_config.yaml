@@ -1,0 +1,26 @@
+# Example Experiment Configuration
+
+experiment:
+  name: "california_housing_baseline"
+  random_seed: 42
+
+data:
+  dataset: "california_housing"
+  test_size: 0.2
+  random_state: 42
+
+model:
+  type: "linear_regression"
+  hyperparameters:
+    fit_intercept: true
+    normalize: false
+
+training:
+  verbose: true
+
+evaluation:
+  metrics:
+    - "mse"
+    - "rmse"
+    - "r2_score"
+
