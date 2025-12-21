@@ -1,8 +1,8 @@
 """
-Machine Learning Experiment Pipeline
+ML Experiment Pipeline
 
-This module implements a reproducible ML pipeline with configuration
-management, logging, and model versioning.
+Simple pipeline for tracking experiments - config, metrics, models.
+Helps with reproducibility.
 """
 
 import numpy as np
@@ -16,46 +16,39 @@ import joblib
 
 class MLPipeline:
     """
-    Reproducible ML experiment pipeline.
+    Basic experiment tracking pipeline.
     """
     
     def __init__(self, config: Dict[str, Any], experiment_name: str = None):
         """
-        Initialize pipeline.
-        
-        Parameters:
-        -----------
-        config : Dict
-            Experiment configuration
-        experiment_name : str
-            Name for this experiment
+        Initialize with experiment config.
         """
         self.config = config
         self.experiment_name = experiment_name or f"experiment_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.results = {}
         self.model = None
         
-        # Create experiment directory
+        # Create folder for this experiment
         self.exp_dir = Path(f"experiments/{self.experiment_name}")
         self.exp_dir.mkdir(parents=True, exist_ok=True)
         
-        # Set random seed for reproducibility
+        # Reproducibility
         np.random.seed(config.get('random_seed', 42))
     
     def save_config(self):
-        """Save experiment configuration."""
+        """Save config to JSON."""
         config_path = self.exp_dir / "config.json"
         with open(config_path, 'w') as f:
             json.dump(self.config, f, indent=2)
     
     def log_metric(self, name: str, value: float, step: Optional[int] = None):
-        """Log a metric."""
+        """Record a metric value."""
         if name not in self.results:
             self.results[name] = []
         self.results[name].append({'value': value, 'step': step})
     
     def save_model(self, model: Any, filename: str = "model.pkl"):
-        """Save trained model."""
+        """Save model to disk."""
         model_path = self.exp_dir / filename
         joblib.dump(model, model_path)
         self.model = model
@@ -67,13 +60,13 @@ class MLPipeline:
         return self.model
     
     def save_results(self):
-        """Save experiment results."""
+        """Save all results to JSON."""
         results_path = self.exp_dir / "results.json"
         with open(results_path, 'w') as f:
             json.dump(self.results, f, indent=2)
     
     def get_summary(self) -> Dict[str, Any]:
-        """Get experiment summary."""
+        """Get summary of experiment."""
         return {
             'experiment_name': self.experiment_name,
             'config': self.config,
